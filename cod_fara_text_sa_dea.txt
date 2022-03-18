@@ -1,0 +1,108 @@
+#define trigPin 10
+#define echoPin 9
+
+int pin1 = 12; 
+int pin2 = 11;
+int pin3 = 5;
+
+
+long duration = 0;
+long cm = 0;
+long inch = 0;
+
+void setup(){
+  
+  Serial.begin(9600);
+  
+  pinMode(pin1,OUTPUT);
+  pinMode(pin2,OUTPUT);
+  pinMode(pin3,OUTPUT);
+  
+  pinMode(8,OUTPUT);
+  digitalWrite(8, HIGH);
+  pinMode(7, INPUT);
+  digitalWrite(7, HIGH);
+  
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+}
+
+void clockwise()
+{
+    digitalWrite(pin1,1);
+    digitalWrite(pin2,0);
+
+}  
+
+void anticlockwise()
+{
+    digitalWrite(pin1,0);
+    digitalWrite(pin2,1);
+
+}
+
+void stop()
+{
+  
+    digitalWrite(pin1,0);
+    digitalWrite(pin2,0);
+}
+
+void loop() {
+  
+  if(digitalRead(8) == 0 ) {
+    do {
+      
+  digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin, HIGH);
+  digitalWrite(trigPin, LOW);
+    
+  duration = pulseIn(echoPin, HIGH);
+  inch = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+    
+  
+  Serial.print(inch);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+ 
+  clockwise();
+    } while(cm<100);
+    
+  stop();
+    }
+  else if(digitalRead(7) == 0){ 
+    do{
+      
+  digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin, HIGH);
+  digitalWrite(trigPin, LOW);
+    
+  duration = pulseIn(echoPin, HIGH);
+  inch = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+    
+  
+  Serial.print(inch);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+ 
+  anticlockwise();
+    } while(cm>6);
+    
+  stop();
+    }
+ 
+}
+
+long microsecondsToInches(long microseconds) {
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds) {
+  return microseconds / 29 / 2;
+}

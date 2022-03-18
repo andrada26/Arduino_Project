@@ -1,0 +1,113 @@
+/* definire pini senzor */
+#define trigPin 10
+#define echoPin 9
+
+/* initializare pini control motor 1,2 */
+const int leftForward = 4; 
+const int leftBackward = 5; 
+const int rightForward = 6; 
+const int rightBackward = 7;
+
+/* initializare variabile senzor */
+long duration = 0;
+long cm = 0;
+long inch = 0;
+
+void setup()
+{
+  pinMode(13, OUTPUT);
+  Serial.begin(9600);
+  
+  pinMode(leftForward , OUTPUT);
+  pinMode(leftBackward , OUTPUT);
+  pinMode(rightForward , OUTPUT);
+  pinMode(rightBackward , OUTPUT);
+  
+  pinMode(trigPin, OUTPUT);
+  pinMode(echoPin, INPUT);
+  
+  pinMode(2,INPUT);
+  pinMode(3, INPUT);
+  digitalWrite(2, HIGH);
+  digitalWrite(3, HIGH);
+ 
+}
+
+void clockwise(){
+  
+  digitalWrite(leftForward , HIGH);
+  digitalWrite(leftBackward , LOW);
+  digitalWrite(rightForward , HIGH);
+  digitalWrite(rightBackward , LOW);
+}
+void anticlockwise(){
+  
+  digitalWrite(leftForward , 0);
+  digitalWrite(leftBackward , 1);
+  digitalWrite(rightForward , 0);
+  digitalWrite(rightBackward , 1);
+}
+void stop(){
+  
+  digitalWrite(leftForward , 0);
+  digitalWrite(leftBackward , LOW);
+  digitalWrite(rightForward , 0);
+  digitalWrite(rightBackward , LOW);
+}
+
+long microsecondsToInches(long microseconds) {
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds) {
+  return microseconds / 29 / 2;
+}
+void loop()
+{
+  
+  if(digitalRead(2) == 0 ) {
+    do {
+      
+  digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin, HIGH);
+  digitalWrite(trigPin, LOW);
+    
+  duration = pulseIn(echoPin, HIGH);
+  inch = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+  
+  Serial.print(inch);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+ 
+  clockwise();
+    } while(cm<30);
+    
+  stop();
+    }
+  else if(digitalRead(3) == 0){ 
+    do{
+      
+  digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin, HIGH);
+  digitalWrite(trigPin, LOW);
+    
+  duration = pulseIn(echoPin, HIGH);
+  inch = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+    
+  Serial.print(inch);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+ 
+  anticlockwise();
+    } while(cm>2);
+    
+  stop();
+    }
+  
+}

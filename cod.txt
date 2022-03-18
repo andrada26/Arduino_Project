@@ -1,0 +1,107 @@
+#define trigPin 10
+#define echoPin 9
+
+//cream variabile initilizate cu valorile pinilor de actiune motor-controller
+int pin1 = 12; 
+int pin2 = 11;
+int pin3 = 5;
+
+//cream variabile pentru a salva datele primite de la senzorul de proximitate
+long duration = 0;
+long cm = 0;
+long inch = 0;
+
+void setup(){
+  
+  Serial.begin(9600); //functie care porneste Serial Monitor.ul si care afiseaza informatii cu o rata de 9600 biti pe secunda
+    
+  //configurarea pinilor drept pini de input(care primesc informatii) si pini de output(care transmit informatii)
+  pinMode(pin1,OUTPUT);
+  pinMode(pin2,OUTPUT);
+  pinMode(pin3,OUTPUT);
+  
+  pinMode(8,OUTPUT);
+  digitalWrite(8, HIGH);//voltajul pinului va fi setat la 5V
+  pinMode(7, INPUT);
+  digitalWrite(7, HIGH);
+  
+  pinMode(trigPin, OUTPUT);//configurarea pinilor senzorului
+  pinMode(echoPin, INPUT);//pinul echo este cel care trasmite raza ultrasonica pinul echo este cel care primeste inapoi raza in care in fata senzorului exista un obiect
+}
+
+void clockwise ()//functie care seteaza prin motor controller miscarea motorului in sensul acelor de ceasornic
+{
+    digitalWrite(pin1,1);
+    digitalWrite(pin2,0);
+
+}  
+
+void anticlockwise()//functie care seteaza prin motor controller miscarea motorului in sens invers acelor de ceasornic
+{
+    digitalWrite(pin1,0);
+    digitalWrite(pin2,1);
+
+}
+void stop(){//functie care seteaza prin motor controller oprirea miscarii motorului
+  
+    digitalWrite(pin1,0);
+    digitalWrite(pin2,0);
+}
+
+void loop() {
+  
+  if(digitalRead(8) == 0 ) {//if care verifica daca butonul de plecare sertar este apasat
+    do {
+  digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin, HIGH);//transmiterea razei ultrasonice 
+  digitalWrite(trigPin, LOW);
+    
+  duration = pulseIn(echoPin, HIGH);
+  inch = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+    
+  
+  Serial.print(inch);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+ 
+  clockwise();
+    } while(cm<100);//cat timp sertarul nu sare de pe sine contiunua sa l impingi
+    
+  stop();//sertarul a ajuns in pozitia limita de iesire asa ca motorul trebuie oprit
+    }
+  else if(digitalRead(7) == 0){ //if care verifica daca butonul de intoarcere sertar este apasat
+    do{
+      digitalWrite(trigPin, LOW);
+  digitalWrite(trigPin, HIGH);
+  digitalWrite(trigPin, LOW);
+    
+  duration = pulseIn(echoPin, HIGH); // functia asteapta ca pinul echiPin sa aiba valoarea HIGH, incepe cronometrarea, apoi asteapta ca pinul sa coboare LOW si opreste cronometrarea.
+  //pulseIn returneaza lungimea impulsului in microsecunde sau 0 daca nu a fost receptionat niciun impuls complet
+  inch = microsecondsToInches(duration);
+  cm = microsecondsToCentimeters(duration);
+    
+  
+  Serial.print(inch);
+  Serial.print("in, ");
+  Serial.print(cm);
+  Serial.print("cm");
+  Serial.println();
+ 
+  anticlockwise();
+    } while(cm>6);//cat timp sertarul are unde sa se retraga
+    
+  stop();//sertarul a ajuns in pozitia limita de intrare asa ca motorul trebuie oprit
+    }
+  
+}
+
+long microsecondsToInches(long microseconds) {//functie care converteste durata in inci
+  return microseconds / 74 / 2;
+}
+
+long microsecondsToCentimeters(long microseconds) {//functie care converteste durata in centimetri
+  return microseconds / 29 / 2;
+}
